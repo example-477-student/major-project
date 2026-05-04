@@ -12,21 +12,40 @@ const options = {
 };
 
 
+// function for getting JSON data and returning it
+async function getData(url, opts) {
+    try {
+        const response = await fetch(url, opts);
+        if (response.ok) {
+            const result = await response.json();
+            return result;
+        } else {
+            throw(response.status);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
 
     // get the list of genres and output to console
-    fetch('https://api.themoviedb.org/3/genre/movie/list?language=en', options)
-        .then(res => res.json())
-        .then(res => console.log(res))
-        .catch(err => console.error(err));
+    getData('https://api.themoviedb.org/3/genre/movie/list?language=en', options).then(function(result) {
+
+        console.log("genre list:", result);
+
+    });
 
     // "comedy" is genre # 35, so if we search for that...
-    fetch('https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=35', options)
-        .then(res => res.json())
-        .then(function(result) {
-            // the JSON object is in "result"
-            console.log(result);
-        })
-        .catch(err => console.error(err));
+    let genreNumber = 35;
+    let genreSearchURL = 'https://api.themoviedb.org/3/discover/movie?with_genres=' + genreNumber;
+    getData(genreSearchURL, options).then(function(result) {
+
+        console.log("discover results:", result);
+
+        // find the first item in those results
+        console.log("first result:", result.results[0].original_title);
+    });
 
 });
